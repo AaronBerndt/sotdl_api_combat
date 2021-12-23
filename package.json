@@ -1,5 +1,5 @@
 {
-  "name": "sotdl_api_insert",
+  "name": "sotdl_api_combat_tracker",
   "version": "2",
   "license": "MIT",
   "dependencies": {
