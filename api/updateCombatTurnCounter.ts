@@ -2,6 +2,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { fetchCollection, updateCollection } from "../utilities/MongoUtils";
 import microCors from "micro-cors";
 import { ObjectId } from "mongodb";
+import axios from "axios";
 
 const cors = microCors();
 
@@ -13,7 +14,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const { combatId } = request.body.data;
 
     const { data: currentCombat } = await axios(
-      `https://sotdl-api-fetch.vercel.app/api/combats?_id=${attackerData.activeCombat}`
+      `https://sotdl-api-fetch.vercel.app/api/combats?_id=${combatId}`
     );
 
     const { turn, ...rest } = currentCombat;
@@ -25,10 +26,10 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         turn: turn + 1,
       },
       {
-        _id: new ObjectId(_id),
+        _id: new ObjectId(combatId),
       }
     );
-    response.status(200).send(newCombatObject);
+    response.status(200).send(data);
   } catch (e) {
     response.status(504).send(e);
   }
