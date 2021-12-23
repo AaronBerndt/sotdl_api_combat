@@ -47,9 +47,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       }),
     };
 
-    const data = await updateCollection("combats", newCombatObject, {
-      _id: new ObjectId(_id),
-    });
+    // const data = await updateCollection("combats", newCombatObject, {
+    //   _id: new ObjectId(_id),
+    // });
     response.status(200).send(newCombatObject);
   } catch (e) {
     response.status(504).send(e);
@@ -57,3 +57,4 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 };
 
 export default cors(handler);
+
