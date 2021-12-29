@@ -24,6 +24,12 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         `https://sotdl-api-fetch.vercel.app/api/characters?_id=${_id}`
       );
 
+      const { turnType, ...rest } = characterData;
+
+      const newCharacterObject = {
+        ...rest,
+        turnType: turnType === "Fast" ? "Slow" : "Fast",
+      };
       data = await updateCollection("characters", newCharacterObject, {
         _id: new ObjectId(_id),
       });
@@ -58,11 +64,3 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 };
 
 export default cors(handler);
-
-function newCharacterObject(
-  arg0: string,
-  newCharacterObject: any,
-  arg2: { _id: ObjectId }
-) {
-  throw new Error("Function not implemented.");
-}

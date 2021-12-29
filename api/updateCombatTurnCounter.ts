@@ -17,20 +17,34 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       `https://sotdl-api-fetch.vercel.app/api/combats?_id=${combatId}`
     );
 
-    const { turn, ...rest } = currentCombat;
+    const { turn, combatants, ...rest } = currentCombat;
+    const newCombatantsObject = combatants.map((combatant) => {
+      const { temporaryEffects, afflictions, ...rest } = combatant;
 
-    const data = await updateCollection(
-      "combats",
-      {
+      const temporaryEffectsObject = temporaryEffects.map(
+        (temporaryEffect) => {}
+      );
+      const afflictionsObject = afflictions.map((afflictions) => {});
+
+      return {
+        temporaryEffects,
+        afflictions,
         ...rest,
-        turn: turn + 1,
-      },
-      {
-        _id: new ObjectId(combatId),
-      }
-    );
-    response.status(200).send(data);
+      };
+    });
+
+    const newCombatObject = {
+      ...rest,
+      turn: turn + 1,
+      combatants: newCombatantsObject,
+    };
+
+    // const data = await updateCollection("combats", newCombatObject, {
+    //   _id: new ObjectId(combatId),
+    // });
+    response.status(200).send(newCombatantsObject);
   } catch (e) {
+    console.log(e);
     response.status(504).send(e);
   }
 };
