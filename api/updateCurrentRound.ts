@@ -3,7 +3,7 @@ import { fetchCollection, updateCollection } from "../utilities/MongoUtils";
 import microCors from "micro-cors";
 import { ObjectId } from "mongodb";
 import axios from "axios";
-import { find } from "lodash";
+import { find, findIndex, indexOf } from "lodash";
 
 const cors = microCors();
 
@@ -12,44 +12,32 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (request.method === "OPTIONS") {
       return response.status(200).end();
     }
-    const { combatId, _id, type } = request.body.data;
-    let data;
+    const { combatId } = request.body.data;
 
     const { data: currentCombat } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/combats?_id=${combatId}`
     );
 
-    if (type === "player") {
-      const { data: characterData } = await axios(
-        `https://sotdl-api-fetch.vercel.app/api/characters?_id=${_id}`
-      );
+    const { currentRound, ...rest } = currentCombat;
 
-      data = await updateCollection("characters", newCharacterObject, {
-        _id: new ObjectId(_id),
-      });
-    } else {
-      const { combatants, ...rest } = currentCombat;
-      const monster = find(currentCombat?.combatants, { _id });
+    const currentRoundTypeArray = [
+      "Player Fast",
+      "Monster Fast",
+      "Player Slow",
+      "Monster Slow",
+    ];
 
-      const newCombatObject = {
-        ...rest,
-        combatants: combatants.map((combatant) => {
-          if (combatant._id === _id) {
-            const { turnType, ...rest } = combatant;
+    const index = indexOf(currentRoundTypeArray, currentRound);
+    const newIndex = index === 3 ? 0 : index + 1;
 
-            return {
-              ...rest,
-              turnType: turnType === "Fast" ? "Slow" : "Fast",
-            };
-          }
-          return combatant;
-        }),
-      };
+    const newCombatObject = {
+      currentRound: currentRoundTypeArray[newIndex],
+      ...rest,
+    };
 
-      data = await updateCollection("combats", newCombatObject, {
-        _id: new ObjectId(_id),
-      });
-    }
+    const data = await updateCollection("combats", newCombatObject, {
+      _id: new ObjectId(combatId),
+    });
 
     response.status(200).send(data);
   } catch (e) {
@@ -58,11 +46,3 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 };
 
 export default cors(handler);
-
-function newCharacterObject(
-  arg0: string,
-  newCharacterObject: any,
-  arg2: { _id: ObjectId }
-) {
-  throw new Error("Function not implemented.");
-}
