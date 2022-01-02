@@ -23,7 +23,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       const { data: characterData } = await axios(
         `https://sotdl-api-fetch.vercel.app/api/characters?_id=${_id}`
       );
-
+      const newCharacterObject = {};
       data = await updateCollection("characters", newCharacterObject, {
         _id: new ObjectId(_id),
       });
